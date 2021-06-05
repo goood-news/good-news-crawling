@@ -5,6 +5,8 @@ from numpy.lib.function_base import append
 import requests
 import pandas as pd
 import re
+from selenium import webdriver
+from time import sleep
 
 #한글깨짐 방지
 import sys
@@ -27,11 +29,9 @@ link_text=[] # 본문 링크
 source_text=[] # 신문사
 contents_text=[] # 요약
 full_content=[] #본문 모든 내용
-emotion_recommend=[] #추천해요 숫자
-emotion_good=[] # 좋아요 숫자
-emotion_touching=[] # 감동이에요 숫자
-emotion_angry=[] # 화났어요 숫자
-emotion_sad=[] #슬퍼요 숫자
+likes=[] # 좋아요 숫자
+dislikes=[] # 감동이에요 숫자
+label=[] # 긍부정 평가 
 result={}
 
 
@@ -63,11 +63,11 @@ def crawler(category):
         }
     cat = categories.get(category)
 
-    page = 1 # starting page number
-    maxpage_t =1   # fin page number
+    page = 1 # start page number
+    maxpage_t =10   # finish page number
     
     while page <= maxpage_t:
-        
+        sleep(40)
         # BeautifulSoup
         url = f"https://news.daum.net/breakingnews/{cat}?page={page}"
         response = requests.get(url)
@@ -106,6 +106,36 @@ def crawler(category):
                 else:
                     title_image.append(contents_lists.get('src'))
 
+                
+                #본문요약본 (span 태그 중 class 명이 link_txt인 것)
+                options = webdriver.ChromeOptions()
+                options.add_argument("headless")
+                # options.add_argument('--no-sandbox')
+                browser = webdriver.Chrome("./chromedriver", options=options)
+                browser.get(cur_url)
+
+                good_emotion = 0
+                bad_emotion = 0
+                count_elems = browser.find_elements_by_class_name('count')
+                if(len(count_elems)==5):
+                    for i in range(0,3):
+                        elem = count_elems[i].text
+                        if(elem.isdigit()):
+                            good_emotion = good_emotion+int(count_elems[i].text)
+                    for i in range(3,5):
+                        elem = count_elems[i].text
+                        if(elem.isdigit()):
+                            bad_emotion = bad_emotion+int(count_elems[i].text)
+                
+                likes.append(good_emotion) # 전처리
+                dislikes.append(bad_emotion) # 전처리
+
+                if(good_emotion>bad_emotion):
+                    label.append(1) # 긍정
+                else:
+                    label.append(0) # 부정
+
+                browser.quit()
                 ###############################################################################
             else:
                 continue
@@ -121,10 +151,10 @@ def crawler(category):
         for contents_list in contents_lists:
             contents_cleansing(contents_list) # 전처리
 
-        # make sure all the list's length are same
-        # print(len(title_text), len(source_text), len(contents_text), len(link_text), len(title_image), len(full_content))
+        # 모든 리스트의 길이가 같아야하므로 길이를 확인한다.
+        print(len(title_text), len(source_text), len(contents_text), len(link_text), len(title_image), len(full_content), len(likes), len(dislikes))
 
-        #모든 리스트 딕셔너리형태로 저장
+    #     #모든 리스트 딕셔너리형태로 저장
         result= {
             "title":title_text ,  
             "source" : source_text ,
@@ -132,6 +162,9 @@ def crawler(category):
             "link":link_text, 
             "image": title_image ,
             "full_contents": full_content ,
+            "likes": likes,
+            "dislikes": dislikes,
+            "label": label
             }
 
         df = pd.DataFrame(result)  #df로 변환
@@ -144,6 +177,7 @@ def crawler(category):
 #메인함수
 def main():
     category = input("카테고리 입력: ") # 예시 : '정치', '경제', '사회', '사회', '세계', 'IT', '오피니언'
+    # time = input("검색시간 입력")
     crawler(category)
 
 #메인함수 수행
