@@ -4,6 +4,7 @@
 실행하면 바로 AWS Mysql Server로 이동. (엔드포인트, 포트는 직접 입력해야함)
 
 ### Run
+<<<<<<< HEAD
 $ python crawling.py --category society
 arguments: 
 - category: society: 사회, economy: 경제, IT: 과학기술, foreign: 세계뉴스, opinion: 사설  (default '사회')
@@ -29,3 +30,9 @@ Run: $ pytest test.py
 - bs4
 - python
 - MySQL (AWS RDS)
+=======
+$ python crawling.py
+
+### Test
+$ python test.py
+>>>>>>> 4c920d5e04adb7d50eb7a448c0ea79a49733d39c
