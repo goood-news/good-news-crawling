@@ -67,14 +67,14 @@ def crawler(category):
     cat = categories.get(category)
 
     page = 1 # start page number
-    maxpage_t =1   # finish page number
+    maxpage_t = 20   # finish page number
     
     while page <= maxpage_t:
-        # sleep(40)
+        sleep(40)
         # BeautifulSoup
         url = f"https://news.daum.net/breakingnews/{cat}?page={page}"
         response = requests.get(url)
-        html = response.text
+        html = response.content.decode('utf-8','replace').encode('utf-8','replace')
         soup = BeautifulSoup(html, 'html.parser')
 
         # strong 태그 중 class 명이 tit_thumb인 것
@@ -99,11 +99,11 @@ def crawler(category):
 
                 # 본문 (p 태그 중 dmcf-ptype이 general인 것)
                 contents_lists = full_soup.find_all('p','dmcf-ptype'=="general")
-                news_full_content=[]
                 full_content_string=''
                 for contents_list in contents_lists:
                     full_content_string+=str(contents_list)
-                full_content_string = full_content_string.replace("'", " ")
+                full_content_string = full_content_string.replace("'", "_")
+                # print("full content: ", full_content_string)
                 full_content.append(full_content_string)
 
                 # 본문사진 (img 태그 중 class 명이 thumb_g_article인 것)
@@ -193,39 +193,12 @@ def crawler(category):
     df.to_excel(RESULT_PATH+outputFileName,sheet_name='sheet1')
 
     # TITLE, SOURCE, CONTENTS, LINK, IMAGE, FULL_CONTENTS, LIKES, DISLIKES, LABEL
-    sql = "INSERT into CRAWLING(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    
-    # for i in range(len(title_text)):
-    #     title[i] = title_text[i].replace("'"," ")
-    #     source_text[i] = source_text[i].replace("'"," ")
-    #     contents_text[i] = contents_text[i].replace("'"," ")
-    #     link_text[i] = link_text[i].replace("'"," ")
-    #     title_image[i] = title_image[i].replace("'"," ")
-    #     full_content[i] = full_content[i].replace("'"," ")
-
-    #     title[i] = title_text[i].replace('"', ' ')
-    #     source_text[i] = source_text[i].replace('"', ' ')
-    #     contents_text[i] = contents_text[i].replace('"', ' ')
-    #     link_text[i] = link_text[i].replace('"', ' ')
-    #     title_image[i] = title_image[i].replace('"', ' ')
-    #     full_content[i] = full_content[i].replace('"', ' ')
+    # sql = "INSERT into CRAWLING(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     for i in range(len(title_text)):
         sql_query = f"INSERT INTO CRAWLING VALUES('{title_text[i]}','{source_text[i]}','{contents_text[i]}','{link_text[i]}','{title_image[i]}','{full_content[i]}','{likes[i]}','{dislikes[i]}','{label[i]}')"
         # print(sql_query)
         curs.execute(sql_query)
-        print(sql_query)
-        # curs.execute(sql, (
-        #     title_text[i], 
-        #     source_text[i], 
-        #     contents_text[i], 
-        #     link_text[i],
-        #     title_image[i],
-        #     full_content[i],
-        #     int(likes[i]),
-        #     int(dislikes[i]),
-        #     int(label[i])
-        #     ))
         conn.commit()
 
 
