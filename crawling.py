@@ -14,6 +14,8 @@ import io
 sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
 
+from env import conn
+
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 < naver 뉴스 검색시 리스트 크롤링하는 프로그램 > _select사용
 - 크롤링 해오는 것 : 링크,제목,신문사,내용요약본
@@ -39,6 +41,7 @@ result={}
 RESULT_PATH ='D:/news_crawling/'  #결과 저장할 경로
 now = datetime.now() #파일이름 현 시간으로 저장하기
 
+curs = conn.cursor()
 
 # preprocessing function 전처리 함수
 def contents_cleansing(contents):
@@ -64,10 +67,10 @@ def crawler(category):
     cat = categories.get(category)
 
     page = 1 # start page number
-    maxpage_t =10   # finish page number
+    maxpage_t =1   # finish page number
     
     while page <= maxpage_t:
-        sleep(40)
+        # sleep(40)
         # BeautifulSoup
         url = f"https://news.daum.net/breakingnews/{cat}?page={page}"
         response = requests.get(url)
@@ -82,9 +85,11 @@ def crawler(category):
             title = atag.a.text
             # strong 태그 중 뉴스 기사 제목 아닌 것들 (15번째 strong 넘어가는 strong 태그) 스크랩 하지 않기 위해 cnt<15
             if(cnt<15):
+                title = title.replace("'", " ")
                 title_text.append(title)     #제목
                 cur_url = atag.a.get('href') # 뉴스 기사 url
-                link_text.append(cur_url)
+                cur_url_txt = cur_url.replace("'", " ")
+                link_text.append(cur_url_txt)
 
                 ################## full content, 전체 뉴스 페이지에 접근 ##################
 
@@ -95,9 +100,11 @@ def crawler(category):
                 # 본문 (p 태그 중 dmcf-ptype이 general인 것)
                 contents_lists = full_soup.find_all('p','dmcf-ptype'=="general")
                 news_full_content=[]
+                full_content_string=''
                 for contents_list in contents_lists:
-                    news_full_content.append(contents_list)
-                full_content.append(news_full_content)
+                    full_content_string+=str(contents_list)
+                full_content_string = full_content_string.replace("'", " ")
+                full_content.append(full_content_string)
 
                 # 본문사진 (img 태그 중 class 명이 thumb_g_article인 것)
                 contents_lists = full_soup.find('img',"thumb_g_article")
@@ -143,13 +150,24 @@ def crawler(category):
 
         #신문사 (span 태그 중 class 명이 info_news인 것)
         source_lists = soup.find_all('span', 'info_news')
-        for source_list in source_lists:
-            source_text.append(source_list.text)    #신문사
+        if(source_lists==[]):
+                source_text.append('')
+        else:
+            for source_list in source_lists:
+                src_list = source_list.text
+                src_list = src_list.replace("'", " ")
+                source_text.append(src_list)    #신문사
 
         #본문요약본 (span 태그 중 class 명이 link_txt인 것)
         contents_lists = soup.find_all('span','link_txt')
-        for contents_list in contents_lists:
-            contents_cleansing(contents_list) # 전처리
+        if(contents_lists==[]):
+            source_text.append('')
+        elif(contents_lists==None):
+            source_text.append('')
+        else:
+            for contents_list in contents_lists:
+                # contents_list = contents_list.replace("'", " ")
+                contents_cleansing(contents_list) # 전처리
 
         # 모든 리스트의 길이가 같아야하므로 길이를 확인한다.
         print(len(title_text), len(source_text), len(contents_text), len(link_text), len(title_image), len(full_content), len(likes), len(dislikes))
@@ -173,6 +191,43 @@ def crawler(category):
     # 새로 만들 파일이름 지정
     outputFileName = f'daum_result_{cat}.xlsx'
     df.to_excel(RESULT_PATH+outputFileName,sheet_name='sheet1')
+
+    # TITLE, SOURCE, CONTENTS, LINK, IMAGE, FULL_CONTENTS, LIKES, DISLIKES, LABEL
+    sql = "INSERT into CRAWLING(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    
+    # for i in range(len(title_text)):
+    #     title[i] = title_text[i].replace("'"," ")
+    #     source_text[i] = source_text[i].replace("'"," ")
+    #     contents_text[i] = contents_text[i].replace("'"," ")
+    #     link_text[i] = link_text[i].replace("'"," ")
+    #     title_image[i] = title_image[i].replace("'"," ")
+    #     full_content[i] = full_content[i].replace("'"," ")
+
+    #     title[i] = title_text[i].replace('"', ' ')
+    #     source_text[i] = source_text[i].replace('"', ' ')
+    #     contents_text[i] = contents_text[i].replace('"', ' ')
+    #     link_text[i] = link_text[i].replace('"', ' ')
+    #     title_image[i] = title_image[i].replace('"', ' ')
+    #     full_content[i] = full_content[i].replace('"', ' ')
+
+    for i in range(len(title_text)):
+        sql_query = f"INSERT INTO CRAWLING VALUES('{title_text[i]}','{source_text[i]}','{contents_text[i]}','{link_text[i]}','{title_image[i]}','{full_content[i]}','{likes[i]}','{dislikes[i]}','{label[i]}')"
+        # print(sql_query)
+        curs.execute(sql_query)
+        print(sql_query)
+        # curs.execute(sql, (
+        #     title_text[i], 
+        #     source_text[i], 
+        #     contents_text[i], 
+        #     link_text[i],
+        #     title_image[i],
+        #     full_content[i],
+        #     int(likes[i]),
+        #     int(dislikes[i]),
+        #     int(label[i])
+        #     ))
+        conn.commit()
+
 
 #메인함수
 def main():
