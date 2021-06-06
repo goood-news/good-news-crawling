@@ -153,7 +153,7 @@ def crawler(category):
 
             # 카테고리
             category_list = [cat for i in range(15)]
-            
+
             # 신문사 (span 태그 중 class 명이 info_news인 것)
             source_lists = soup.find_all('span', 'info_news')
             if(source_lists==[]):
@@ -205,7 +205,7 @@ def crawler(category):
     # sql = "INSERT into CRAWLING(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     for i in range(len(title_text)):
-        sql_query = f"INSERT INTO CRAWLING VALUES('{title_text[i]}','{category_list[i]}','{source_text[i]}','{contents_text[i]}','{link_text[i]}','{title_image[i]}','{full_content[i]}','{likes[i]}','{dislikes[i]}','{label[i]}')"
+        sql_query = f"INSERT INTO CRAWLING VALUES('{category_list[i]}','{title_text[i]}','{source_text[i]}','{contents_text[i]}','{link_text[i]}','{title_image[i]}','{full_content[i]}','{likes[i]}','{dislikes[i]}','{label[i]}')"
         # print(sql_query)
         curs.execute(sql_query)
         conn.commit()
