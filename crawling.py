@@ -45,14 +45,14 @@ now = datetime.now() #파일이름 현 시간으로 저장하기
 curs = conn.cursor()
 
 # preprocessing function 전처리 함수
-def contents_cleansing(contents):
-    # 앞에 필요없는 부분 제거
-    first_cleansing_contents = re.sub('<dl>.*?</a> </div> </dd> <dd> <span>', '',str(contents)).strip()  
-    # 뒤에 필요없는 부분 제거 (새끼 기사)
-    second_cleansing_contents = re.sub('<ul class="relation_lst">.*?</dd> </span>', '', first_cleansing_contents).strip()
-    third_cleansing_contents = re.sub('<.+?>', '', second_cleansing_contents).strip()
-    contents_text.append(third_cleansing_contents)
-    return third_cleansing_contents
+# def contents_cleansing(contents):
+#     # 앞에 필요없는 부분 제거
+#     first_cleansing_contents = re.sub('<dl>.*?</a> </div> </dd> <dd> <span>', '',str(contents)).strip()  
+#     # 뒤에 필요없는 부분 제거 (새끼 기사)
+#     second_cleansing_contents = re.sub('<ul class="relation_lst">.*?</dd> </span>', '', first_cleansing_contents).strip()
+#     third_cleansing_contents = re.sub('<.+?>', '', second_cleansing_contents).strip()
+#     contents_text.append(third_cleansing_contents)
+#     return third_cleansing_contents
 
 
 def crawler(category):
@@ -166,13 +166,15 @@ def crawler(category):
                     source_text.append(src_list)    #신문사
 
             # 본문 요약본 (span 태그 중 class 명이 link_txt인 것)
-            contents_lists = soup.find_all('span','link_txt')
+            contents_lists = soup.select('div.box_etc div.desc_thumb > span.link_txt')
+            # contents_lists = soup.find_all('span','link_txt')
             if(contents_lists==[]):
                 source_text.append('')
             else:
                 for contents_list in contents_lists:
+                    contents_list = contents_list.text
                     contents_list = str(contents_list).replace("'", '"')
-                    contents_cleansing(contents_list) # 전처리
+                    contents_list = contents_list.replace('\n', '').strip()
 
             # 모든 리스트의 길이가 같아야하므로 길이를 확인한다.
             print(len(title_text), len(category_list), len(source_text), len(contents_text), len(link_text), len(title_image), len(full_content), len(likes), len(dislikes))
