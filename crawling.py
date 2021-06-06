@@ -72,7 +72,7 @@ def crawler(category):
     
     while page <= maxpage_t:
 
-        sleep(40)
+        sleep(5)
         
         # BeautifulSoup
         url = f"https://news.daum.net/breakingnews/{cat}?page={page}"
@@ -175,6 +175,7 @@ def crawler(category):
                     contents_list = contents_list.text
                     contents_list = str(contents_list).replace("'", '"')
                     contents_list = contents_list.replace('\n', '').strip()
+                    contents_text.append(contents_list)
 
             # 모든 리스트의 길이가 같아야하므로 길이를 확인한다.
             print(len(title_text), len(category_list), len(source_text), len(contents_text), len(link_text), len(title_image), len(full_content), len(likes), len(dislikes))
