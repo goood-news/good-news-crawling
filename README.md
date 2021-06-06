@@ -5,6 +5,8 @@
 
 ### Requirements
 - chromedriver.exe (make complicence with local OS)
+- set mySQL information in local env.py file at root
+
 ### Run
 $ python crawling.py --category society
 arguments: 
