@@ -102,11 +102,12 @@ def crawler(category):
                     full_soup = BeautifulSoup(full_html, 'html.parser')
 
                     # 본문 (p 태그 중 dmcf-ptype이 general인 것)
-                    contents_lists = full_soup.find_all('p','dmcf-ptype'=="general")
+                    contents_lists = full_soup.select('#harmonyContainer > section > p')
                     full_content_string=''
                     for contents_list in contents_lists:
+                        contents_list = contents_list.text
                         full_content_string+=str(contents_list)
-                    full_content_string = full_content_string.replace("'", " ")
+                    full_content_string = full_content_string.replace("'", "_")
                     # print("full content: ", full_content_string)
                     full_content.append(full_content_string)
 
