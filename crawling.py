@@ -152,7 +152,7 @@ def crawler(category):
                 cnt+=1
 
             # 카테고리
-            category_list = [cat for i in range(15)]
+            category_list = [cat for i in range(15*page)]
 
             # 신문사 (span 태그 중 class 명이 info_news인 것)
             source_lists = soup.find_all('span', 'info_news')
