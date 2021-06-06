@@ -42,7 +42,7 @@ result={}
 
 
 # 엑셀로 저장하기 위한 변수
-RESULT_PATH ='./'  #결과 저장할 경로
+RESULT_PATH ='D:/news_crawling/'  #결과 저장할 경로
 now = datetime.now() #파일이름 현 시간으로 저장하기
 
 curs = conn.cursor()
@@ -156,7 +156,7 @@ def crawler(category):
 
         wait = WebDriverWait(browser, 10)
         element = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "selectionbox.type-RECOMMEND.unselected")))
-        
+
         good_emotion = 0
         bad_emotion = 0
         count_elems = browser.find_elements_by_class_name('count')
