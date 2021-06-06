@@ -89,10 +89,10 @@ def crawler(category):
                 title = atag.a.text
                 # strong 태그 중 뉴스 기사 제목 아닌 것들 (15번째 strong 넘어가는 strong 태그) 스크랩 하지 않기 위해 cnt<15
                 if(cnt<15):
-                    title = title.replace("'", " ")
+                    title = title.replace("'", '"')
                     title_text.append(title)     #제목
                     cur_url = atag.a.get('href') # 뉴스 기사 url
-                    cur_url_txt = cur_url.replace("'", " ")
+                    cur_url_txt = cur_url.replace("'", '"')
                     link_text.append(cur_url_txt)
 
                     ################## full content, 전체 뉴스 페이지에 접근 ##################
@@ -107,7 +107,7 @@ def crawler(category):
                     for contents_list in contents_lists:
                         contents_list = contents_list.text
                         full_content_string+=str(contents_list)
-                    full_content_string = full_content_string.replace("'", "_")
+                    full_content_string = full_content_string.replace("'", '"')
                     # print("full content: ", full_content_string)
                     full_content.append(full_content_string)
 
@@ -162,7 +162,7 @@ def crawler(category):
             else:
                 for source_list in source_lists:
                     src_list = source_list.text
-                    src_list = src_list.replace("'", " ")
+                    src_list = src_list.replace("'", '"')
                     source_text.append(src_list)    #신문사
 
             # 본문 요약본 (span 태그 중 class 명이 link_txt인 것)
@@ -171,7 +171,7 @@ def crawler(category):
                 source_text.append('')
             else:
                 for contents_list in contents_lists:
-                    contents_list = str(contents_list).replace("'", " ")
+                    contents_list = str(contents_list).replace("'", '"')
                     contents_cleansing(contents_list) # 전처리
 
             # 모든 리스트의 길이가 같아야하므로 길이를 확인한다.
