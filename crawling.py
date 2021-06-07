@@ -68,7 +68,7 @@ def crawler(category, newsdate, start_page, end_page):
     start_page = int(start_page)
     end_page = int(end_page)
 
-    while start_page <= end_page:
+    while start_page < end_page:
         # BeautifulSoup
         url = f"https://news.daum.net/breakingnews/{cat}?page={start_page}&regDate={newsdate}"
         try:
