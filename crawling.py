@@ -84,6 +84,10 @@ def crawler(category, newsdate, start_page, end_page):
                 title = atag.a.text
                 # strong 태그 중 뉴스 기사 제목 아닌 것들 (15번째 strong 넘어가는 strong 태그) 스크랩 하지 않기 위해 cnt<15
                 if(cnt<15):
+
+                    # insert current page number (한 페이지에 15개 이하인 issue solve)
+                    page_list.append(start_page)
+
                     title = title.replace("'", '"')
                     title_text.append(title)     #제목
                     cur_url = atag.a.get('href') # 뉴스 기사 url
@@ -106,6 +110,7 @@ def crawler(category, newsdate, start_page, end_page):
                     full_content_string = full_content_string.replace("'", '"')
                     # print("full content: ", full_content_string)
                     full_content.append(full_content_string)
+                    contents_text.append(full_content_string[:120])
 
                     # 본문사진 (img 태그 중 class 명이 thumb_g_article인 것)
                     contents_lists = full_soup.find('img',"thumb_g_article")
@@ -113,41 +118,49 @@ def crawler(category, newsdate, start_page, end_page):
                         title_image.append('')
                     else:
                         title_image.append(contents_lists.get('src'))
+
+                    tmp_source_str = ""
+                    publisher_list = full_soup.find_all('img', 'thumb_g')
+                    publisher = publisher_list[1].get('alt')
+                    reporter = full_soup.find('span', 'txt_info')
+                    num_date = full_soup.find('span', 'num_date')
+
+                    tmp_source_str += str(num_date.text)
+                    tmp_source_str += str(reporter.text)
+                    tmp_source_str += str(publisher)
+                    source_text.append(tmp_source_str)
+                    # print(tmp_source_str)
                     ###############################################################################
                 else:
                     continue
                 cnt+=1
 
-            # 신문사 (span 태그 중 class 명이 info_news인 것)
-            source_lists = soup.find_all('span', 'info_news')
-            if(source_lists==[]):
-                    source_text.append('')
-            else:
-                for source_list in source_lists:
-                    src_list = source_list.text
-                    src_list = src_list.replace("'", '"')
-                    source_text.append(src_list)    #신문사
+            # # 신문사 (span 태그 중 class 명이 info_news인 것)
+            # source_lists = soup.find_all('span', 'info_news')
+            # if(source_lists==None):
+            #         source_text.append('')
+            # else:
+            #     for source_list in source_lists:
+            #         src_list = source_list.text
+            #         src_list = src_list.replace("'", '"')
+            #         source_text.append(src_list)    #신문사
 
             # 본문 요약본 (span 태그 중 class 명이 link_txt인 것)
-            contents_lists = soup.select('div.box_etc div.desc_thumb > span.link_txt')
-            # contents_lists = soup.find_all('span','link_txt')
-            if(contents_lists==[]):
-                source_text.append('')
-            else:
-                for contents_list in contents_lists:
-                    contents_list = contents_list.text
-                    contents_list = str(contents_list).replace("'", '"')
-                    contents_list = contents_list.replace('\n', '').strip()
-                    contents_text.append(contents_list)
+            # contents_lists = soup.select('div.box_etc div.desc_thumb > span.link_txt')
+            # # contents_lists = soup.find_all('span','link_txt')
+            # if(contents_lists==None):
+            #     source_text.append('')
+            # else:
+            #     for contents_list in contents_lists:
+            #         contents_list = contents_list.text
+            #         contents_list = str(contents_list).replace("'", '"')
+            #         contents_list = contents_list.replace('\n', '').strip()
+            #         contents_text.append(contents_list)
 
-            # 모든 리스트의 길이가 같아야하므로 길이를 확인한다.
-            # print(len(title_text), len(source_text), len(contents_text), len(link_text), len(title_image), len(full_content))
         
         except requests.exceptions.ConnectionError:
             continue
-        
-        tmp_page_list=[str(start_page) for i in range(15)]
-        page_list = page_list + tmp_page_list
+
         start_page += 1
 
     # 카테고리
@@ -189,7 +202,7 @@ def crawler(category, newsdate, start_page, end_page):
     browser.quit()
 
     # 모든 리스트의 길이가 같아야하므로 길이를 확인한다.
-    # print(len(title_text), len(category_list), len(source_text), len(contents_text), len(link_text), len(title_image), len(full_content), len(likes), len(dislikes))
+    print(len(category_list), len(page_list), len(title_text), len(title_image), len(link_text), len(source_text), len(date_list),len(contents_text),  len(full_content), len(likes), len(dislikes), len(label))
 
     # 모든 리스트 딕셔너리형태로 저장
     result= {
@@ -222,7 +235,7 @@ def crawler(category, newsdate, start_page, end_page):
 
 # 메인함수
 def main():
-    category = input("카테고리 입력: ") # 예시 : '경제', '사회', '세계','정치', '사회', '오피니언', 'IT' 
+    category = input("카테고리 입력: ") # 예시 : '경제', '사회', '세계','정치', '오피니언', 'IT' 
     newsdate = input("검색할 날짜 입력: 예)20210601 ")
     start_page = input("검색할 시작 페이지: ")
     end_pages = input("검색할 끝 페이지: ")
