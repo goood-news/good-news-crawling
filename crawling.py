@@ -228,7 +228,7 @@ def crawler(category, newsdate, start_page, end_page):
     # sql = "INSERT into CRAWLING(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     for i in range(len(title_text)):
-        sql_query = f"INSERT INTO CRAWLING2 VALUES('{category_list[i]}',{page_list[i]},'{title_text[i]}','{source_text[i]}','{date_list[i]}','{contents_text[i]}','{link_text[i]}','{title_image[i]}','{full_content[i]}','{likes[i]}','{dislikes[i]}','{label[i]}')"
+        sql_query = f"INSERT INTO CRAWLING2 VALUES('{category_list[i]}','{page_list[i]}','{title_text[i]}','{source_text[i]}','{date_list[i]}','{contents_text[i]}','{link_text[i]}','{title_image[i]}','{full_content[i]}','{likes[i]}','{dislikes[i]}','{label[i]}')"
         curs.execute(sql_query)
         conn.commit()
 
