@@ -135,28 +135,6 @@ def crawler(category, newsdate, start_page, end_page):
                     continue
                 cnt+=1
 
-            # # 신문사 (span 태그 중 class 명이 info_news인 것)
-            # source_lists = soup.find_all('span', 'info_news')
-            # if(source_lists==None):
-            #         source_text.append('')
-            # else:
-            #     for source_list in source_lists:
-            #         src_list = source_list.text
-            #         src_list = src_list.replace("'", '"')
-            #         source_text.append(src_list)    #신문사
-
-            # 본문 요약본 (span 태그 중 class 명이 link_txt인 것)
-            # contents_lists = soup.select('div.box_etc div.desc_thumb > span.link_txt')
-            # # contents_lists = soup.find_all('span','link_txt')
-            # if(contents_lists==None):
-            #     source_text.append('')
-            # else:
-            #     for contents_list in contents_lists:
-            #         contents_list = contents_list.text
-            #         contents_list = str(contents_list).replace("'", '"')
-            #         contents_list = contents_list.replace('\n', '').strip()
-            #         contents_text.append(contents_list)
-
         
         except requests.exceptions.ConnectionError:
             continue
@@ -229,7 +207,7 @@ def crawler(category, newsdate, start_page, end_page):
     # sql = "INSERT into CRAWLING(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     for i in range(len(title_text)):
-        sql_query = f"INSERT INTO CRAWLING2 VALUES('{category_list[i]}','{page_list[i]}','{title_text[i]}','{source_text[i]}','{date_list[i]}','{contents_text[i]}','{link_text[i]}','{title_image[i]}','{full_content[i]}','{likes[i]}','{dislikes[i]}','{label[i]}')"
+        sql_query = f"INSERT INTO TODAY VALUES('{category_list[i]}','{page_list[i]}','{title_text[i]}','{source_text[i]}','{date_list[i]}','{contents_text[i]}','{link_text[i]}','{title_image[i]}','{full_content[i]}','{likes[i]}','{dislikes[i]}','{label[i]}')"
         curs.execute(sql_query)
         conn.commit()
 
