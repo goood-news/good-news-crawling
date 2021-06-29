@@ -10,6 +10,7 @@ from time import sleep
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+import argparse
 
 # 한글깨짐 방지
 import sys
@@ -214,12 +215,26 @@ def crawler(category, newsdate, start_page, end_page):
 
 # 메인함수
 def main():
-    category = input("카테고리 입력: ") # 예시 : '정치', '경제', '사회', '세계' '오피니언', 'IT' 
-    newsdate = input("검색할 날짜 입력: 예)20210601 ")
-    start_page = input("검색할 시작 페이지: ")
-    end_pages = input("검색할 끝 페이지: ")
+    # category = input("카테고리 입력: ") # 예시 : '정치', '경제', '사회', '세계' '오피니언', 'IT' 
+    # newsdate = input("검색할 날짜 입력: 예)20210601 ")
+    # start_page = input("검색할 시작 페이지: ")
+    # end_pages = input("검색할 끝 페이지: ")
+    
     # time = input("검색시간 입력")
-    crawler(category, newsdate, start_page, end_pages)
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--category', type=str, default='')
+    parser.add_argument('--newsdate', type=str, default='')
+    parser.add_argument('--start_page', type=str, default='')
+    parser.add_argument('--end_page', type=str, default='')
+
+    args = parser.parse_args()
+    category = args.category
+    newsdate = args.newsdate
+    start_page = args.start_page
+    end_page = args.end_page
+
+    crawler(category, newsdate, start_page, end_page)
 
 # 메인함수 수행
 main()
